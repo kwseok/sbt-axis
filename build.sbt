@@ -4,7 +4,7 @@ organization := "io.teamscala.sbt"
 
 name := "sbt-axis"
 
-version := "0.2.0"
+version := "0.2.1"
 
 scalaVersion := "2.10.4"
 
@@ -17,5 +17,6 @@ libraryDependencies ++= Seq(
   "org.apache.axis2" % "axis2-codegen" % "1.6.2",
   "org.apache.axis2" % "axis2-xmlbeans" % "1.6.2",
   "commons-logging" % "commons-logging" % "1.1.1",
-  "commons-discovery" % "commons-discovery" % "0.2"
+  "commons-discovery" % "commons-discovery" % "0.2",
+  "commons-codec" % "commons-codec" % "1.10"
 )
