@@ -4,7 +4,7 @@ organization := "io.teamscala.sbt"
 
 name := "sbt-axis"
 
-version := "0.1.0"
+version := "0.1.1"
 
 scalaVersion := "2.10.4"
 
@@ -15,5 +15,6 @@ libraryDependencies ++= Seq(
   "javax.activation" % "activation" % "1.1.1",
   "javax.mail" % "mail" % "1.4",
   "commons-logging" % "commons-logging" % "1.0.4",
-  "commons-discovery" % "commons-discovery" % "0.2"
+  "commons-discovery" % "commons-discovery" % "0.2",
+  "commons-codec" % "commons-codec" % "1.10"
 )

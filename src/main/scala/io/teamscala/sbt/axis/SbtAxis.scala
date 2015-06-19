@@ -1,12 +1,16 @@
 package io.teamscala.sbt.axis
 
+import java.net.MalformedURLException
+
 import org.apache.axis.utils._
 import org.apache.axis.wsdl._
 import org.apache.axis.wsdl.gen._
+import org.apache.commons.codec.digest.DigestUtils.md5Hex
 import sbt.Keys._
 import sbt._
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 object Import {
 
@@ -46,8 +50,9 @@ object SbtAxis extends AutoPlugin {
     otherArgs in axis := Nil,
     wsdl2java in axis := (streams in axis, wsdlUris in axis, sourceManaged in axis, packageName in axis, dataBindingName in axis, timeout in axis, otherArgs in axis).map(runWsdlToJavas).value,
     sourceGenerators in Compile += (wsdl2java in axis).taskValue,
-    managedSourceDirectories in Compile += (sourceManaged in axis).value,
+    managedSourceDirectories in Compile += (sourceManaged in axis).value / "main",
     cleanFiles += (sourceManaged in axis).value,
+    clean in axis := IO.delete((sourceManaged in axis).value),
 
     version in axis := "1.4",
     wsdl4jVersion in axis := "1.5.1",
@@ -70,14 +75,29 @@ object SbtAxis extends AutoPlugin {
 
   private def runWsdlToJavas(streams: TaskStreams,
                              wsdlUris: Seq[String],
-                             dest: File,
+                             basedir: File,
                              packageName: Option[String],
                              dataBindingName: Option[String],
                              timeout: Option[Int],
                              otherArgs: Seq[String]): Seq[File] = {
 
-    val settings = WSDL2JavaSettings(dest, packageName, dataBindingName, timeout, otherArgs)
-    wsdlUris.flatMap(runWsImport(streams, _, settings)).distinct
+    val cachedir = basedir / "cache"
+    val wsdlFiles = wsdlUris.map { wsdlUri =>
+      Try(url(wsdlUri)).map(wsdlUrl => IO.urlAsFile(wsdlUrl).getOrElse {
+        val wsdlFile = cachedir / (md5Hex(wsdlUri) + ".wsdl")
+        if (!wsdlFile.exists) IO.download(wsdlUrl, wsdlFile)
+        wsdlFile
+      }).recover {
+        case e: MalformedURLException => file(wsdlUri)
+      }.get
+    }
+
+    val cachedFn = FileFunction.cached(cachedir, FilesInfo.lastModified, FilesInfo.exists) { _ =>
+      val settings = WSDL2JavaSettings(basedir / "main", packageName, dataBindingName, timeout, otherArgs)
+      wsdlUris.foreach(runWsImport(streams, _, settings))
+      (settings.dest ** "*.java").get.toSet
+    }
+    cachedFn(wsdlFiles.toSet).toSeq
   }
 
   private def makeArgs(wsdlUri: String, settings: WSDL2JavaSettings): Seq[String] =
@@ -88,7 +108,7 @@ object SbtAxis extends AutoPlugin {
     settings.otherArgs ++
     Seq(wsdlUri)
 
-  private def runWsImport(streams: TaskStreams, wsdlUri: String, settings: WSDL2JavaSettings): Seq[File] = {
+  private def runWsImport(streams: TaskStreams, wsdlUri: String, settings: WSDL2JavaSettings): Unit = {
     streams.log.info("Generating Java from " + wsdlUri)
 
     streams.log.debug("Creating dir " + settings.dest)
@@ -102,7 +122,6 @@ object SbtAxis extends AutoPlugin {
         streams.log.error("Problem running WSDL2Java " + args.mkString(" "))
         throw t
     }
-    (settings.dest ** "*.java").get
   }
 
 }
