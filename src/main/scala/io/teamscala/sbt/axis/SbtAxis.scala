@@ -18,15 +18,15 @@ object Import {
 
   object AxisKeys {
 
-    val wsdl2java              = taskKey[Seq[File]]("Runs WSDL2Java")
-    val wsdlUris               = settingKey[Seq[String]]("Uri to WSDLs")
-    val packageName            = settingKey[Option[String]]("Package to create Java files under, corresponds to -p / --package option in WSDL2Java")
-    val dataBindingName        = settingKey[Option[String]]("Data binding framework name. Possible values include \"adb\", \"xmlbeans\", \"jibx\".")
-    val timeout                = settingKey[Option[Int]]("Timeout used when generating sources")
-    val otherArgs              = settingKey[Seq[String]]("Other arguments to pass to WSDL2Java")
-    val wsdl4jVersion          = settingKey[String]("The version of axis wsdl4j module.")
-    val javaxActivationVersion = settingKey[String]("The version of javax activation module.")
-    val javaxMailVersion       = settingKey[String]("The version of javax mail module.")
+    val wsdl2java              = TaskKey[Seq[File]]("axis-wsdl2java", "Runs WSDL2Java")
+    val wsdls                  = SettingKey[Seq[String]]("axis-wsdls", "Uri to WSDLs")
+    val packageName            = SettingKey[Option[String]]("axis-package-name", "Package to create Java files under, corresponds to -p / --package option in WSDL2Java")
+    val dataBindingName        = SettingKey[Option[String]]("axis-data-binding-name", "Data binding framework name. Possible values include \"adb\", \"xmlbeans\", \"jibx\".")
+    val timeout                = SettingKey[Option[Int]]("axis-timeout", "Timeout used when generating sources")
+    val otherArgs              = SettingKey[Seq[String]]("axis-other-args", "Other arguments to pass to WSDL2Java")
+    val wsdl4jVersion          = SettingKey[String]("axis-wsdl4j-version", "The version of axis wsdl4j module.")
+    val javaxActivationVersion = SettingKey[String]("axis-javax-activation-version", "The version of javax activation module.")
+    val javaxMailVersion       = SettingKey[String]("axis-javax-mail-version", "The version of javax mail module.")
   }
 
 }
@@ -43,27 +43,27 @@ object SbtAxis extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     sourceManaged in axis := sourceManaged(_ / "axis").value,
-    wsdlUris in axis := Nil,
-    packageName in axis := None,
-    dataBindingName in axis := None,
-    timeout in axis := Some(45),
-    otherArgs in axis := Nil,
-    wsdl2java in axis := (streams in axis, wsdlUris in axis, sourceManaged in axis, packageName in axis, dataBindingName in axis, timeout in axis, otherArgs in axis).map(runWsdlToJavas).value,
-    sourceGenerators in Compile += (wsdl2java in axis).taskValue,
+    wsdls := Nil,
+    packageName := None,
+    dataBindingName := None,
+    timeout := Some(45),
+    otherArgs := Nil,
+    wsdl2java := (streams, wsdls, sourceManaged in axis, packageName, dataBindingName, timeout, otherArgs).map(runWsdlToJavas).value,
+    sourceGenerators in Compile += wsdl2java.taskValue,
     managedSourceDirectories in Compile += (sourceManaged in axis).value / "main",
     cleanFiles += (sourceManaged in axis).value,
     clean in axis := IO.delete((sourceManaged in axis).value),
 
     version in axis := "1.4",
-    wsdl4jVersion in axis := "1.5.1",
-    javaxActivationVersion in axis := "1.1.1",
-    javaxMailVersion in axis := "1.4",
+    wsdl4jVersion := "1.5.1",
+    javaxActivationVersion := "1.1.1",
+    javaxMailVersion := "1.4",
     libraryDependencies ++= Seq(
       "axis" % "axis" % (version in axis).value,
       "axis" % "axis-saaj" % (version in axis).value,
-      "axis" % "axis-wsdl4j" % (wsdl4jVersion in axis).value,
-      "javax.activation" % "activation" % (javaxActivationVersion in axis).value,
-      "javax.mail" % "mail" % (javaxMailVersion in axis).value
+      "axis" % "axis-wsdl4j" % wsdl4jVersion.value,
+      "javax.activation" % "activation" % javaxActivationVersion.value,
+      "javax.mail" % "mail" % javaxMailVersion.value
     )
   )
 
