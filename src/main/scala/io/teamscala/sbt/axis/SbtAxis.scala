@@ -15,15 +15,15 @@ object Import {
 
   object AxisKeys {
 
-    val wsdl2java                  = taskKey[Seq[File]]("Runs WSDL2Java")
-    val wsdlUris                   = settingKey[Seq[String]]("Uri to WSDLs")
-    val packageName                = settingKey[Option[String]]("Package to create Java files under, corresponds to -p / --package option in WSDL2Java")
-    val dataBindingName            = settingKey[Option[String]]("Data binding framework name. Possible values include \"adb\", \"xmlbeans\", \"jibx\".")
-    val otherArgs                  = settingKey[Seq[String]]("Other arguments to pass to WSDL2Java")
-    val wsdl4jVersion              = settingKey[String]("The version of wsdl4j module.")
-    val apacheNeethiVersion        = settingKey[String]("The version of Apache Neethi.")
-    val apacheXMLSchemaCoreVersion = settingKey[String]("The version of Apache XMLSchema Core.")
-    val apacheAxiomImplVersion     = settingKey[String]("The version of Apache Axiom implementation.")
+    val wsdl2java                  = TaskKey[Seq[File]]("axis-wsdl2java", "Runs WSDL2Java")
+    val wsdls                      = SettingKey[Seq[String]]("axis-wsdls", "Uri to WSDLs")
+    val packageName                = SettingKey[Option[String]]("axis-package-name", "Package to create Java files under, corresponds to -p / --package option in WSDL2Java")
+    val dataBindingName            = SettingKey[Option[String]]("axis-data-binding-name", "Data binding framework name. Possible values include \"adb\", \"xmlbeans\", \"jibx\".")
+    val otherArgs                  = SettingKey[Seq[String]]("axis-other-args", "Other arguments to pass to WSDL2Java")
+    val wsdl4jVersion              = SettingKey[String]("axis-wsdl4j-version", "The version of wsdl4j module.")
+    val apacheNeethiVersion        = SettingKey[String]("axis-apache-neethi-version", "The version of Apache Neethi.")
+    val apacheXMLSchemaCoreVersion = SettingKey[String]("axis-apache_xml_schema_core_version", "The version of Apache XMLSchema Core.")
+    val apacheAxiomImplVersion     = SettingKey[String]("axis-apache-axiom-impl-version", "The version of Apache Axiom implementation.")
 
   }
 
@@ -41,12 +41,12 @@ object SbtAxis extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     sourceManaged in axis := sourceManaged(_ / "axis").value,
-    wsdlUris in axis := Nil,
-    packageName in axis := None,
-    dataBindingName in axis := None,
-    otherArgs in axis := Nil,
-    wsdl2java in axis := (streams in axis, wsdlUris in axis, sourceManaged in axis, packageName in axis, dataBindingName in axis, otherArgs in axis).map(runWsdlToJavas).value,
-    sourceGenerators in Compile += (wsdl2java in axis).taskValue,
+    wsdls := Nil,
+    packageName := None,
+    dataBindingName := None,
+    otherArgs := Nil,
+    wsdl2java := (streams, wsdls, sourceManaged in axis, packageName, dataBindingName, otherArgs).map(runWsdlToJavas).value,
+    sourceGenerators in Compile += wsdl2java.taskValue,
     managedSourceDirectories in Compile += (sourceManaged in axis).value / "main",
     cleanFiles += (sourceManaged in axis).value,
     clean in axis := IO.delete((sourceManaged in axis).value),
@@ -58,15 +58,15 @@ object SbtAxis extends AutoPlugin {
       "axis2-transport-http"
     ).map("org.apache.axis2" % _ % (version in axis).value),
 
-    wsdl4jVersion in axis := "1.6.3",
-    apacheNeethiVersion in axis := "3.0.3",
-    apacheXMLSchemaCoreVersion in axis := "2.2.1",
-    apacheAxiomImplVersion in axis := "1.2.14",
+    wsdl4jVersion := "1.6.3",
+    apacheNeethiVersion := "3.0.3",
+    apacheXMLSchemaCoreVersion := "2.2.1",
+    apacheAxiomImplVersion := "1.2.14",
     libraryDependencies ++= Seq(
-      "wsdl4j" % "wsdl4j" % (wsdl4jVersion in axis).value,
-      "org.apache.neethi" % "neethi" % (apacheNeethiVersion in axis).value,
-      "org.apache.ws.xmlschema" % "xmlschema-core" % (apacheXMLSchemaCoreVersion in axis).value,
-      "org.apache.ws.commons.axiom" % "axiom-impl" % (apacheAxiomImplVersion in axis).value
+      "wsdl4j" % "wsdl4j" % wsdl4jVersion.value,
+      "org.apache.neethi" % "neethi" % apacheNeethiVersion.value,
+      "org.apache.ws.xmlschema" % "xmlschema-core" % apacheXMLSchemaCoreVersion.value,
+      "org.apache.ws.commons.axiom" % "axiom-impl" % apacheAxiomImplVersion.value
     )
   )
 
