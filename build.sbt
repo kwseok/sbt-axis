@@ -4,9 +4,9 @@ organization := "io.teamscala.sbt"
 
 name := "sbt-axis"
 
-version := "0.2.2"
+version := "0.2.3"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.10.5"
 
 libraryDependencies ++= Seq(
   "org.apache.axis2" % "axis2-kernel" % "1.6.2",
