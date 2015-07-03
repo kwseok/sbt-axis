@@ -4,8 +4,6 @@ organization := "io.teamscala.sbt"
 
 name := "sbt-axis"
 
-version := "0.2.3"
-
 scalaVersion := "2.10.5"
 
 libraryDependencies ++= Seq(
@@ -20,3 +18,5 @@ libraryDependencies ++= Seq(
   "commons-discovery" % "commons-discovery" % "0.2",
   "commons-codec" % "commons-codec" % "1.10"
 )
+
+licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
