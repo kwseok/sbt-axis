@@ -1,0 +1,2 @@
+> axisWsdl2java
+$ exists target/scala-2.10/src_managed/axis/main/org/jboss/net/samples/AddressBook/AddressBookService.java
