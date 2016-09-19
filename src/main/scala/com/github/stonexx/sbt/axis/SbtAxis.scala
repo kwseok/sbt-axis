@@ -1,4 +1,4 @@
-package io.teamscala.sbt.axis
+package com.github.stonexx.sbt.axis
 
 import java.net.MalformedURLException
 

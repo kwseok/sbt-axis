@@ -8,7 +8,7 @@ To use this plugin use the addSbtPlugin command within your project's `plugins.s
 ```scala
 resolvers += Resolver.url("bintray-stonexx-sbt-plugins", url("http://dl.bintray.com/stonexx/sbt-plugins"))(Resolver.ivyStylePatterns)
 
-addSbtPlugin("io.teamscala.sbt" % "sbt-axis" % "0.1.2")
+addSbtPlugin("com.github.stonexx.sbt" % "sbt-axis" % "0.1.3")
 ```
 
 For example with `build.sbt`:
