@@ -1,4 +1,4 @@
-package io.teamscala.sbt.axis
+package com.github.stonexx.sbt.axis
 
 import java.net.MalformedURLException
 
@@ -51,7 +51,7 @@ object SbtAxis extends AutoPlugin {
     cleanFiles += (sourceManaged in axis).value,
     clean in axis := IO.delete((sourceManaged in axis).value),
 
-    version in axis := "1.6.2",
+    version in axis := "1.7.3",
     libraryDependencies ++= Seq(
       "axis2",
       "axis2-transport-local",
@@ -61,7 +61,7 @@ object SbtAxis extends AutoPlugin {
     wsdl4jVersion := "1.6.3",
     apacheNeethiVersion := "3.0.3",
     apacheXMLSchemaCoreVersion := "2.2.1",
-    apacheAxiomImplVersion := "1.2.14",
+    apacheAxiomImplVersion := "1.2.19",
     libraryDependencies ++= Seq(
       "wsdl4j" % "wsdl4j" % wsdl4jVersion.value,
       "org.apache.neethi" % "neethi" % apacheNeethiVersion.value,
@@ -70,17 +70,21 @@ object SbtAxis extends AutoPlugin {
     )
   )
 
-  private case class WSDL2JavaSettings(dest: File,
-                                       packageName: Option[String],
-                                       dataBindingName: Option[String],
-                                       otherArgs: Seq[String])
+  private case class WSDL2JavaSettings(
+    dest: File,
+    packageName: Option[String],
+    dataBindingName: Option[String],
+    otherArgs: Seq[String]
+  )
 
-  private def runWsdlToJavas(streams: TaskStreams,
-                             wsdlUris: Seq[String],
-                             basedir: File,
-                             packageName: Option[String],
-                             dataBindingName: Option[String],
-                             otherArgs: Seq[String]): Seq[File] = {
+  private def runWsdlToJavas(
+    streams: TaskStreams,
+    wsdlUris: Seq[String],
+    basedir: File,
+    packageName: Option[String],
+    dataBindingName: Option[String],
+    otherArgs: Seq[String]
+  ): Seq[File] = {
 
     val cachedir = basedir / "cache"
     val wsdlFiles = wsdlUris.map { wsdlUri =>
@@ -103,11 +107,11 @@ object SbtAxis extends AutoPlugin {
 
   private def makeArgs(wsdlUri: String, settings: WSDL2JavaSettings): Seq[String] =
     settings.packageName.toSeq.flatMap(p => Seq("-p", p)) ++
-    settings.dataBindingName.toSeq.flatMap(n => Seq("-d", n)) ++
-    Seq("-o", settings.dest.getAbsolutePath) ++
-    Seq("-S", ".") ++
-    settings.otherArgs ++
-    Seq("-uri", wsdlUri)
+      settings.dataBindingName.toSeq.flatMap(n => Seq("-d", n)) ++
+      Seq("-o", settings.dest.getAbsolutePath) ++
+      Seq("-S", ".") ++
+      settings.otherArgs ++
+      Seq("-uri", wsdlUri)
 
   private def runWsImport(streams: TaskStreams, wsdlUri: String, settings: WSDL2JavaSettings): Unit = {
     streams.log.info("Generating Java from " + wsdlUri)

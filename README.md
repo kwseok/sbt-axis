@@ -6,13 +6,13 @@ Installation
 To use this plugin use the addSbtPlugin command within your project's `plugins.sbt` file:
 
 ```scala
-addSbtPlugin("io.teamscala.sbt" % "sbt-axis" % "0.2.3")
+addSbtPlugin("com.github.stonexx.sbt" % "sbt-axis" % "0.2.4")
 ```
 
 For Axis1:
 
 ```scala
-addSbtPlugin("io.teamscala.sbt" % "sbt-axis" % "0.1.2")
+addSbtPlugin("com.github.stonexx.sbt" % "sbt-axis" % "0.1.3")
 ```
 
 For example with `build.sbt`:
