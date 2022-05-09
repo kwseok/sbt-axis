@@ -8,6 +8,6 @@ publishTo := {
 
 credentials += Credentials(Path.userHome / ".sbt" / ".credentials")
 
-publishMavenStyle := false
+//publishMavenStyle := false
 
-pomIncludeRepository := { _ => false }
+//pomIncludeRepository := { _ => false }
